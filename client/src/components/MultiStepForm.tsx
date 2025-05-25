@@ -41,7 +41,8 @@ const MultiStepForm = () => {
       text: "What's your main value proposition?",
       type: 'text',
       color: 'green',
-      required: true
+      required: true,
+      multiline: true
     },
   ]);
 
