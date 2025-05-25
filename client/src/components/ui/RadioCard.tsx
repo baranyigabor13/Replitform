@@ -87,22 +87,13 @@ const RadioCard = forwardRef<HTMLInputElement, RadioCardProps>(({
             )}></div>
             <div className="relative flex flex-col items-center text-center">
               {option.icon && (
-                <span className={cn(
-                  "material-icons text-4xl mb-3 transition-colors duration-300",
-                  value === option.value ? "text-white" : colorStyles[color].text
-                )}>
+                <span className={cn('material-icons text-4xl mb-3', colorStyles[color].text)}>
                   {option.icon}
                 </span>
               )}
-              <span className={cn(
-                "font-bold transition-colors duration-300",
-                value === option.value ? "text-white" : "text-black"
-              )}>{option.label}</span>
+              <span className="font-bold">{option.label}</span>
               {option.description && (
-                <p className={cn(
-                  "text-sm mt-2 transition-colors duration-300",
-                  value === option.value ? "text-gray-200" : "text-gray-400"
-                )}>{option.description}</p>
+                <p className="text-sm text-gray-400 mt-2">{option.description}</p>
               )}
             </div>
           </label>
