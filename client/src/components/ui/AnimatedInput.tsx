@@ -7,24 +7,20 @@ import type {
 } from "react";
 import { cn } from "@/lib/utils";
 
-// 1. Színséma konstansként, as const-el
 const colorStyles = {
   blue: "border-neon-blue border-opacity-30 focus:border-opacity-100 focus:ring-neon-blue text-neon-blue",
   purple: "border-neon-purple border-opacity-30 focus:border-opacity-100 focus:ring-neon-purple text-neon-purple",
   green: "border-neon-green border-opacity-30 focus:border-opacity-100 focus:ring-neon-green text-neon-green",
 } as const;
 
-// 2. Színek kulcsainak típusa
 type ColorName = keyof typeof colorStyles;
 
-// 3. Saját propok, köztük a color – itt nincs ütközés
 interface BaseAnimatedInputProps {
   label?: string;
   error?: string;
   color?: ColorName;
 }
 
-// 4. Omit segítségével töröljük a HTML attribútumok color definícióját
 type AnimatedInputProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
   "color"
@@ -37,7 +33,6 @@ type AnimatedTextareaProps = Omit<
 > &
   BaseAnimatedInputProps & { rows?: number };
 
-// 5. Input komponens
 export const AnimatedInput = forwardRef(
   (props: AnimatedInputProps, ref: ForwardedRef<HTMLInputElement>) => {
     const {
@@ -48,7 +43,6 @@ export const AnimatedInput = forwardRef(
       ...rest
     } = props;
 
-    // Típusbiztos indexelés
     const styles = colorStyles[color];
 
     return (
@@ -96,7 +90,6 @@ export const AnimatedInput = forwardRef(
 
 AnimatedInput.displayName = "AnimatedInput";
 
-// 6. Textarea komponens ugyanúgy
 export const AnimatedTextarea = forwardRef(
   (props: AnimatedTextareaProps, ref: ForwardedRef<HTMLTextAreaElement>) => {
     const {
