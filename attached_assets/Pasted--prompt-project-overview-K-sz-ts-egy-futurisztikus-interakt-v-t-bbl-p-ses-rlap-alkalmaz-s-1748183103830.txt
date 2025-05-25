@@ -1,0 +1,155 @@
+<prompt>
+  <project_overview>
+    Készíts egy futurisztikus, interaktív többlépéses űrlap alkalmazást Facebook hirdetések generálásához. Az alkalmazás React, Tailwind CSS és shadcn/ui komponensekkel épüljön fel. Az űrlap intelligensen, dinamikusan generálja a következő kérdéseket az előző válaszok alapján Supabase Edge Functions és AI segítségével.
+  </project_overview>
+
+  <design_requirements>
+    <visual_style>
+      - Futurisztikus, sci-fi inspirált dizájn sötét háttérrel (#0a0a0a vagy #111827)
+      - Neon színek: elektromos kék (#00D9FF), neon lila (#B794F4), cyber zöld (#00FF88)
+      - Glassmorphism effektek: háttér blur, átlátszó panelek
+      - Glow effektek a hover state-eknél és aktív elemeknél
+      - Smooth animációk és átmenetek (framer-motion használata)
+      - Particle.js vagy hasonló háttér animáció csillagokkal/részecskékkel
+      - Futurisztikus betűtípus: Inter vagy Space Grotesk
+    </visual_style>
+
+    <interactive_elements>
+      - 3D-s forgatható kártyák a válaszopciókhoz
+      - Hover effektek: glow, scale, tilt
+      - Smooth scroll és parallax effektek
+      - Typing animáció a kérdések megjelenésénél
+      - Progress bar pulzáló neon animációval
+      - Sound effects opcionálisan (kattintás, következő lépés)
+      - Konfetti vagy particle burst sikeres generálásnál
+      - Drag and drop a generált hirdetések átrendezéséhez
+    </interactive_elements>
+  </design_requirements>
+
+  <technical_architecture>
+    <frontend>
+      - React 18+ with TypeScript
+      - Tailwind CSS custom config futurisztikus színpalettával
+      - shadcn/ui komponensek testreszabva
+      - Framer Motion animációkhoz
+      - React Hook Form validációhoz
+      - Zustand state managementhez
+      - React Query Supabase hívásokhoz
+    </frontend>
+
+    <backend>
+      - Supabase Edge Functions két endpoint:
+        1. /generate-form-questions - dinamikus kérdések generálása
+        2. /generate-ad-content - hirdetés szöveg generálása
+      - OpenAI GPT-4 integráció
+      - JSON schema validáció a generált kérdésekhez
+    </backend>
+  </technical_architecture>
+
+  <user_flow>
+    <step_1>
+      - Futurisztikus welcome screen pulzáló "Start" gombbal
+      - 3 kezdő kérdés egyszerű, nagy kártyákon:
+        1. Mit hirdetsz? (termék/szolgáltatás/esemény)
+        2. Mi a neve?
+        3. Mi a fő értékajánlata?
+      - Minden válasz után smooth transition a következő kérdéshez
+    </step_1>
+
+    <step_2>
+      - AI generál 4-6 személyre szabott kérdést
+      - Loading state: futurisztikus spinner "AI gondolkodik..." szöveggel
+      - Kérdések típusai változatosak: radio, checkbox, slider, text input
+      - Feltételes kérdések fade-in animációval jelennek meg
+    </step_2>
+
+    <step_3>
+      - Hirdetés generálása 3 variációban
+      - Kártyák 3D flip animációval jelennek meg
+      - Minden variáció mellett: hangnem ikon, hossz, emoji számláló
+      - Interaktív szerkesztés: inline edit, AI-asszisztált átírás
+      - Regenerálás gomb pulzáló effekttel
+    </step_3>
+  </user_flow>
+
+  <components_structure>
+    <main_components>
+      - App.tsx - fő container a háttér animációval
+      - MultiStepForm.tsx - az űrlap logika központja
+      - FormStep.tsx - egy lépés megjelenítése
+      - DynamicField.tsx - mezők renderelése típus alapján
+      - GeneratedAds.tsx - eredmények megjelenítése
+      - ProgressIndicator.tsx - haladás jelző neon stílusban
+    </main_components>
+
+    <ui_components>
+      - NeonButton - glow effektes gombok
+      - GlassCard - átlátszó kártyák blur háttérrel
+      - AnimatedInput - futurisztikus input mezők
+      - RadioCard - 3D forgatható választó kártyák
+      - LoadingOrb - sci-fi töltés animáció
+      - ParticleBackground - animált háttér
+    </ui_components>
+  </components_structure>
+
+  <special_features>
+    <ai_integration>
+      - Valós idejű javaslatok gépelés közben
+      - Intelligens kérdés sorrend (fontosság alapján)
+      - Kontextus-érzékeny súgók
+      - Előző válaszok alapján előre kitöltött mezők
+    </ai_integration>
+
+    <animations>
+      - Kérdések beúszása: staggered fade + slide
+      - Válasz kiválasztása: ripple effect
+      - Lépések közti átmenet: morph animation
+      - Sikeres generálás: holografikus megjelenés
+      - Hover states: 3D tilt + glow
+    </animations>
+
+    <accessibility>
+      - Keyboard navigation támogatás
+      - Screen reader friendly
+      - Fokozott kontraszt mód
+      - Animációk kikapcsolhatók
+    </accessibility>
+  </special_features>
+
+  <data_flow>
+    <form_state>
+      {
+        currentStep: number,
+        steps: FormStep[],
+        answers: Record<string, any>,
+        isLoading: boolean,
+        generatedAds: Ad[],
+        selectedAdId: string
+      }
+    </form_state>
+
+    <api_calls>
+      1. Kezdő 3 kérdés után: POST /generate-form-questions
+         Body: { businessType, businessName, mainBenefit }
+         Response: { steps: FormStep[] }
+      
+      2. Összes kérdés után: POST /generate-ad-content
+         Body: { allAnswers: Record<string, any> }
+         Response: { ads: Ad[] }
+    </api_calls>
+  </data_flow>
+
+  <error_handling>
+    - Graceful degradation: offline módban is működjön alapszinten
+    - Retry mechanizmus API hívásoknál
+    - User-friendly hibaüzenetek sci-fi stílusban
+    - Automatikus mentés localStorage-ba
+  </error_handling>
+
+  <performance>
+    - Lazy loading a nehezebb animációkhoz
+    - Debounce a text inputoknál
+    - Memoization a komplex komponenseknél
+    - Virtual scrolling hosszú listáknál
+  </performance>
+</prompt>
