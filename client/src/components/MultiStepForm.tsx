@@ -11,7 +11,7 @@ import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Question, FormStep as FormStepType, AdContent } from '@shared/schema';
-import { generateQuestions, generateAds } from '@/services/apiService';
+import { generateQuestions, generateAds, saveFormData, saveGeneratedAds } from '@/services/supabaseService';
 
 const MultiStepForm = () => {
   const { toast } = useToast();
@@ -55,9 +55,17 @@ const MultiStepForm = () => {
     generatedAds
   } = useFormStore();
 
-  // Generate dynamic questions based on initial answers
+  // Save form data and generate AI questions based on initial answers
   const generateQuestionsMutation = useMutation({
     mutationFn: async () => {
+      // First save the initial form data to Supabase
+      await saveFormData({
+        businessType: formData.businessType,
+        businessName: formData.businessName,
+        valueProposition: formData.valueProposition
+      });
+      
+      // Then generate questions using Gemini AI via Supabase Edge Function
       return await generateQuestions(
         formData.businessType,
         formData.businessName,
@@ -65,31 +73,62 @@ const MultiStepForm = () => {
       );
     },
     onSuccess: (data) => {
+      // Set the dynamically generated questions from Gemini AI
       setDynamicQuestions(data.questions);
+      
+      // Update the loading message to indicate success
+      toast({
+        title: "Questions generated",
+        description: "AI has crafted personalized questions based on your business details.",
+        variant: "default"
+      });
+      
+      // Move to the next step
       setCurrentStep(2);
     },
     onError: (error: any) => {
       toast({
         title: "Error generating questions",
-        description: error.message,
+        description: error.message || "Failed to generate questions. Please try again.",
         variant: "destructive"
       });
     }
   });
 
-  // Generate ads based on all form answers
+  // Generate ads based on all form answers using Gemini AI
   const generateAdsMutation = useMutation({
     mutationFn: async () => {
-      return await generateAds(formData);
+      // First save the form data with all answers
+      const { id: formDataId } = await saveFormData(formData);
+      
+      // Generate ads using Gemini AI via Supabase Edge Function
+      const response = await generateAds(formData);
+      
+      // Save the generated ads to Supabase
+      if (response.ads && response.ads.length > 0) {
+        await saveGeneratedAds(formDataId, response.ads);
+      }
+      
+      return response;
     },
     onSuccess: (data) => {
+      // Set the AI-generated ads
       setGeneratedAds(data.ads);
+      
+      // Show success message
+      toast({
+        title: "Ads generated successfully",
+        description: "AI has created personalized ads based on your inputs.",
+        variant: "default"
+      });
+      
+      // Move to the final step
       setCurrentStep(3);
     },
     onError: (error: any) => {
       toast({
         title: "Error generating ads",
-        description: error.message,
+        description: error.message || "Failed to generate ads. Please try again.",
         variant: "destructive"
       });
     }
