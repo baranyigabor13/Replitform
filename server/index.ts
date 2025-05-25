@@ -1,42 +1,42 @@
-import express, { type Request, Response, NextFunction } from "express";
+import express, { type Request, type Response, type NextFunction } from "express";
 import { createServer } from "http";
-import { setupVite, serveStatic, log } from "./vite";
+// Must reference the transpiled .js extension when running under ESM on Vercel
+import { setupVite, serveStatic, log } from "./vite.js";
 
 const app = express();
+
+// Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// For serverless deployment, we're only using the Express server
-// to serve the static frontend files and development environment
-// The actual API calls will go directly to Supabase Edge Functions
+// Global error handler
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  const status =
+    (err as { status?: number; statusCode?: number }).status ||
+    (err as { status?: number; statusCode?: number }).statusCode ||
+    500;
+  const message = (err as { message?: string }).message ?? "Internal Server Error";
+
+  res.status(status).json({ message });
+  // Re-throw so it also appears in logs
+  throw err;
+});
 
 (async () => {
-  // Create HTTP server
+  // Create HTTP server for Express + Vite HMR
   const server = createServer(app);
-  
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
 
-    res.status(status).json({ message });
-    throw err;
-  });
-
-  // Setup Vite in development mode
-  if (app.get("env") === "development") {
+  if (process.env.NODE_ENV === "development") {
+    // Dev: use Vite middleware
     await setupVite(app, server);
   } else {
+    // Prod: serve pre-built static assets
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves the client for both development and production
-  const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  // Listen on 0.0.0.0:PORT
+  const PORT = Number(process.env.PORT ?? 5000);
+  server.listen(PORT, "0.0.0.0", () => {
+    log(`Server listening on port ${PORT}`);
   });
 })();
